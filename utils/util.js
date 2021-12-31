@@ -48,9 +48,18 @@ class errMes{
   }
 }
 
+class sucMes{
+  constructor(code,data,mes){
+    this.code = code || 200
+    this.data = data || {}
+    this.mes = mes || '请求成功'
+  }
+}
+
 module.exports = {
   generateId,
   generateToken,
   verifyToken,
-  errMes
+  errMes,
+  sucMes
 };

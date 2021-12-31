@@ -1,4 +1,4 @@
-const { dbUser,dbUserInformation } = require('./mongoConnect')
+const { dbUser, dbUserInformation } = require("./mongoConnect");
 
 let mongoose = require("mongoose");
 const Schema = mongoose.Schema;
@@ -31,59 +31,62 @@ const userSchema = new Schema({
 
 const userInformationSchema = new Schema({
   id: {
-    type:Number,
-    unique: true
+    type: Number,
+    unique: true,
   },
   username: {
     type: String,
-    unique: true
+    unique: true,
   },
   createAt: {
     type: Date,
-    default: Date.now()
+    default: Date.now(),
   },
   phone: {
     type: String,
-    unique: true
+    unique: true,
   },
   shopBus: {
     type: Array,
-    default:[]
+    default: [],
   },
   footprint: {
     type: Array,
-    default:[]
+    default: [],
   },
   collect: {
     type: Array,
-    default:[]
+    default: [],
   },
   vip: {
     type: Object,
-    default:{
-      isVip:false,
-      expirationTime:0
-    }
+    default: {
+      isVip: false,
+      expirationTime: 0,
+    },
   },
-  sex:{
-    type:Number,
-    default:-1 //0为女，1为女，-1未选择
+  sex: {
+    type: Number,
+    default: -1, //0为女，1为女，-1未选择
   },
-  consumerCoupon:{
-    type:Array,
-    default:[]
+  consumerCoupon: {
+    type: Array,
+    default: [],
   },
-  shopHistory:{
-    type:Array,
-    default:[]
+  shopHistory: {
+    type: Array,
+    default: [],
   },
-  campusBean:{
-    type:Number,
-    default:0
-  }
-})
+  campusBean: {
+    type: Number,
+    default: 0,
+  },
+});
 
 module.exports = {
   User: dbUser.model("user", userSchema),
-  UserInformation: dbUserInformation.model("userInformation",userInformationSchema)
+  UserInformation: dbUserInformation.model(
+    "userInformation",
+    userInformationSchema
+  ),
 };
