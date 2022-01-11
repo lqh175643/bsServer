@@ -47,8 +47,8 @@ const userInformationSchema = new Schema({
     unique: true,
   },
   shopBus: {
-    type: Array,
-    default: [],
+    type:Object,
+    default:{}
   },
   footprint: {
     type: Array,

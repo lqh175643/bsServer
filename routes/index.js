@@ -1,3 +1,4 @@
+var { str_parse } = require("../utils/util");
 var express = require("express");
 const {
   getColData,
@@ -5,6 +6,8 @@ const {
   login,
   register,
   getUserInfo,
+  modifyUserInfo,
+  getManyData,
 } = require("../utils/mongodb.js");
 
 var router = express.Router();
@@ -13,6 +16,7 @@ var router = express.Router();
 router.get("/", function (req, res, next) {
   res.render("index", { title: "Express" });
 });
+
 router.get("/category/:name", function (req, res, next) {
   const query = req.query;
   const name = req.params.name;
@@ -70,7 +74,7 @@ router.post("/register", function (req, res, next) {
         });
       },
       (reject) => {
-        console.log(reject)
+        console.log(reject);
         res.send({
           mes: reject.mes,
           err: reject.err,
@@ -87,13 +91,40 @@ router.post("/register", function (req, res, next) {
 });
 
 router.get("/userInfo", function (req, res, next) {
-  const token = req.get("token");
-  getUserInfo(token).then(
+  const uid = req.uid;
+  getUserInfo(uid).then(
     (data) => {
-      res.send(data)
+      res.send(data);
     },
     (err) => {
-      res.send(err)
+      res.send(err);
+    }
+  );
+});
+router.post("/detail/operation", function (req, res, next) {
+  const uid = req.uid;
+  const query = req.query;
+  const target = query.target;
+  const jid = query.jid;
+  const count = query.goodCount;
+  modifyUserInfo(uid, target, jid, count).then(
+    (data) => {
+      res.send(data);
+    },
+    (err) => {
+      res.send(err);
+    }
+  );
+});
+router.get("/userInfo/shopBus", function (req, res, next) {
+  const query = req.query;
+  const ids = str_parse(query.ids);
+  getManyData("category", "allCategory", ids).then(
+    (data) => {
+      res.send(data);
+    },
+    (err) => {
+      res.send(err);
     }
   );
 });

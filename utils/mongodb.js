@@ -13,6 +13,28 @@ const { MongoClient } = require("mongodb");
 
 const url = "mongodb://127.0.0.1:27017";
 const client = new MongoClient(url);
+async function getManyData(dbName, colName, ids) {
+  return new Promise((resolve, reject) => {
+    client.connect((err) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      let db = client.db(dbName);
+      db.collection(colName)
+        .find({ id: "J_100009820314" })
+        .toArray(
+          (err,result)=>{
+            if(err){
+              reject(err);
+            }else {
+              resolve(result)
+            }
+          }
+        );
+    });
+  });
+}
 async function getOneData(dbName, colName, id) {
   return new Promise((resolve, reject) => {
     client.connect((err) => {
@@ -137,10 +159,9 @@ function register(username, pass, phone) {
       });
   });
 }
-function getUserInfo(token) {
+function getUserInfo(uid) {
   return new Promise((resolve, reject) => {
-    const id = verifyToken(token);
-    UserInformation.findOne({ id }, { _id: 0,__v:0 }, (err, data) => {
+    UserInformation.findOne({ id: uid }, { _id: 0, __v: 0 }, (err, data) => {
       if (err) {
         reject(new errMes("查询id失败", err));
       }
@@ -153,6 +174,54 @@ function getUserInfo(token) {
   });
 }
 
+function modifyUserInfo(uid, target, jid, count) {
+  count = Number(count);
+  return new Promise((resolve, reject) => {
+    UserInformation.findOneAndUpdate(
+      { id: uid },
+      {
+        $inc: { [`shopBus.${jid}`]: count },
+      },
+      { upsert: true, new: true },
+      (err, result) => {
+        if (err) {
+          reject(new errMes(`修改数据库失败(${target})`, err));
+        }
+        if (result) {
+          resolve(new sucMes(200, result));
+        } else {
+          reject(new errMes("没有查询到此id"));
+        }
+      }
+    );
+    // UserInformation.findOne({ id: uid, "shopBus.jid": data }, (err, data) => {
+    //   if (err) {
+    //     reject(new errMes(`修改数据库失败(${target})`, err));
+    //   }
+    //   if (data) {
+    //     resolve(new sucMes(200, data));
+    //   } else {
+    //     reject(new errMes("没有查询到此id"));
+    //   }
+    // });
+    // UserInformation.updateOne(
+    //   { id: uid },
+    //   { $push: { [target]: data } },
+    //   (err, data) => {
+    //     console.log();
+    //     if (err || data.acknowledged != true) {
+    //       reject(new errMes(`修改数据库失败(${target})`, err));
+    //     }
+    //     if (data) {
+    //       resolve(new sucMes(200, data));
+    //     } else {
+    //       reject(new errMes("没有查询到此id"));
+    //     }
+    //   }
+    // );
+  });
+}
+
 module.exports = {
   addData,
   getColData,
@@ -160,4 +229,6 @@ module.exports = {
   login,
   register,
   getUserInfo,
+  modifyUserInfo,
+  getManyData,
 };

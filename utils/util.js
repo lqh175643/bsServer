@@ -41,6 +41,16 @@ function verifyToken(token) {
   return res;
 }
 
+function str_parse(data,def=""){
+  let result = ''
+  try {
+    result = JSON.parse(data)
+  } catch (error) {
+    result = def
+  }
+  return result
+}
+
 class errMes{
   constructor(mes,err){
     this.mes = mes || ''
@@ -60,6 +70,7 @@ module.exports = {
   generateId,
   generateToken,
   verifyToken,
+  str_parse,
   errMes,
   sucMes
 };

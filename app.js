@@ -7,6 +7,7 @@ const logger = require("morgan");
 const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
 const cors = require("cors");
+const { verifyToken } = require("./utils/util")
 
 const app = express();
 
@@ -23,6 +24,13 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
+app.use((req,res,next)=>{
+  const token = req.get('token')
+  if(token){
+    req.uid = verifyToken(token)
+  }
+  next()
+})
 app.use("/", indexRouter);
 // app.use('/users', usersRouter);
 
