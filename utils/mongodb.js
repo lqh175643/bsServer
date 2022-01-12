@@ -22,7 +22,7 @@ async function getManyData(dbName, colName, ids) {
       }
       let db = client.db(dbName);
       db.collection(colName)
-        .find({ id: "J_100009820314" })
+        .find({ id: {$in:ids} })
         .toArray(
           (err,result)=>{
             if(err){
