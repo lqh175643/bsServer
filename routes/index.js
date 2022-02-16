@@ -8,6 +8,9 @@ const {
   getUserInfo,
   modifyUserInfo,
   getManyData,
+  deleteUserInfo,
+  modifyUserInfoArr,
+  deleteUserInfoArr
 } = require("../utils/mongodb.js");
 
 var router = express.Router();
@@ -128,4 +131,49 @@ router.get("/userInfo/shopBus", function (req, res, next) {
     }
   );
 });
+router.post("/userInfo/collection", function (req, res, next) {
+  const body = req.body
+  const jid = body.jid
+  const target = body.target
+  const uid = req.uid
+  modifyUserInfoArr(uid, target, jid).then((data) => {
+    res.send(data)
+  }, err => {
+    console.log(err)
+  })
+})
+router.post("/userInfo/footprint", function (req, res, next) {
+  const body = req.body
+  const jid = body.jid
+  const target = body.target
+  const uid = req.uid
+  modifyUserInfoArr(uid, target, jid).then((data) => {
+    res.send(data)
+  }, err => {
+    console.log(err)
+  })
+})
+router.delete('/userInfo/delete', function (req, res, next) {
+  const body = req.body;
+  const jid = body.jid
+  const target = body.target
+  const uid = req.uid
+  deleteUserInfo(uid, target, jid).then((data) => {
+    res.send(data)
+  }, err => {
+    console.log(err)
+  })
+})
+router.delete('/userInfo/deleteArr', function (req, res, next) {
+  const body = req.body;
+  const jid = body.jid
+  const target = body.target
+  const uid = req.uid
+  deleteUserInfoArr(uid, target, jid).then((data) => {
+    res.send(data)
+  }, err => {
+    console.log(err)
+  })
+})
+
 module.exports = router;

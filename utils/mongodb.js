@@ -222,6 +222,50 @@ function modifyUserInfo(uid, target, jid, count) {
   });
 }
 
+function deleteUserInfo(uid,target,jid) {
+  return new Promise((resolve, reject) => {
+    UserInformation.updateOne({ id: uid },{$unset:{[`${target}.${jid}`]:''}} , (err, data) => {
+      if (err) {
+        reject(new errMes("删除购物车失败", err));
+      }
+      if (data) {
+        resolve(new sucMes(200, data));
+      } else {
+        reject(new errMes("没有查询到此用户"));
+      }
+    });
+  });
+}
+
+function modifyUserInfoArr(uid,target,item) {
+  return new Promise((resolve, reject) => {
+    UserInformation.updateOne({ id: uid },{$push:{[target]:item}} , (err, data) => {
+      if (err) {
+        reject(new errMes("操作失败", err));
+      }
+      if (data) {
+        resolve(new sucMes(200, data));
+      } else {
+        reject(new errMes("操作失败"));
+      }
+    });
+  });
+}
+function deleteUserInfoArr(uid,target,jid) {
+  console.log(uid,target,jid)
+  return new Promise((resolve, reject) => {
+    UserInformation.updateOne({ id: uid },{$pull:{[target]:jid}} , (err, data) => {
+      if (err) {
+        reject(new errMes("删除失败", err));
+      }
+      if (data) {
+        resolve(new sucMes(200, data));
+      } else {
+        reject(new errMes("删除失败"));
+      }
+    });
+  });
+}
 module.exports = {
   addData,
   getColData,
@@ -231,4 +275,7 @@ module.exports = {
   getUserInfo,
   modifyUserInfo,
   getManyData,
+  deleteUserInfo,
+  modifyUserInfoArr,
+  deleteUserInfoArr
 };
