@@ -22,12 +22,12 @@ async function getManyData(dbName, colName, ids) {
       }
       let db = client.db(dbName);
       db.collection(colName)
-        .find({ id: {$in:ids} })
+        .find({ id: { $in: ids } })
         .toArray(
-          (err,result)=>{
-            if(err){
+          (err, result) => {
+            if (err) {
               reject(err);
-            }else {
+            } else {
               resolve(result)
             }
           }
@@ -221,10 +221,26 @@ function modifyUserInfo(uid, target, jid, count) {
     // );
   });
 }
-
-function deleteUserInfo(uid,target,jid) {
+/*
+@params target:Object；为对象时修改多个信息，字符串修改单个信息
+*/
+function modifyUserInfoStrNum(uid, target) {
   return new Promise((resolve, reject) => {
-    UserInformation.updateOne({ id: uid },{$unset:{[`${target}.${jid}`]:''}} , (err, data) => {
+    UserInformation.updateOne({ id: uid }, target, (err, data) => {
+      if (err) {
+        reject(new errMes("保存失败", err));
+      }
+      if (data) {
+        resolve(new sucMes(200, data));
+      } else {
+        reject(new errMes("没有查询到此用户"));
+      }
+    });
+  });
+}
+function deleteUserInfo(uid, target, jid) {
+  return new Promise((resolve, reject) => {
+    UserInformation.updateOne({ id: uid }, { $unset: { [`${target}.${jid}`]: '' } }, (err, data) => {
       if (err) {
         reject(new errMes("删除购物车失败", err));
       }
@@ -237,9 +253,9 @@ function deleteUserInfo(uid,target,jid) {
   });
 }
 
-function modifyUserInfoArr(uid,target,item) {
+function modifyUserInfoArr(uid, target, item) {
   return new Promise((resolve, reject) => {
-    UserInformation.updateOne({ id: uid },{$push:{[target]:item}} , (err, data) => {
+    UserInformation.updateOne({ id: uid }, { $push: { [target]: item } }, (err, data) => {
       if (err) {
         reject(new errMes("操作失败", err));
       }
@@ -251,10 +267,10 @@ function modifyUserInfoArr(uid,target,item) {
     });
   });
 }
-function deleteUserInfoArr(uid,target,jid) {
-  console.log(uid,target,jid)
+function deleteUserInfoArr(uid, target, val) {
+  console.log(uid, target, val)
   return new Promise((resolve, reject) => {
-    UserInformation.updateOne({ id: uid },{$pull:{[target]:jid}} , (err, data) => {
+    UserInformation.updateOne({ id: uid }, { $pull: { [target]: val } }, (err, data) => {
       if (err) {
         reject(new errMes("删除失败", err));
       }
@@ -277,5 +293,6 @@ module.exports = {
   getManyData,
   deleteUserInfo,
   modifyUserInfoArr,
+  modifyUserInfoStrNum,
   deleteUserInfoArr
 };

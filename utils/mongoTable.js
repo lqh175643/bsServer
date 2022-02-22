@@ -47,8 +47,8 @@ const userInformationSchema = new Schema({
     unique: true,
   },
   shopBus: {
-    type:Object,
-    default:{}
+    type: Object,
+    default: {}
   },
   footprint: {
     type: Array,
@@ -67,20 +67,48 @@ const userInformationSchema = new Schema({
   },
   sex: {
     type: Number,
-    default: -1, //0为女，1为女，-1未选择
+    default: -1, //0为女，1为男，-1未选择
   },
   consumerCoupon: {
     type: Array,
-    default: [],
+    default: [{
+      price: 99,
+      reduce: 10,
+      limit: ['百草味', '良品铺子', '三只松鼠']
+    }, {
+      price: 10,
+      reduce: 2,
+      limit: ['所有商品']
+    }],
   },
   shopHistory: {
-    type: Array,
-    default: [],
+    type: Object,
+    default: {},
   },
   campusBean: {
     type: Number,
     default: 0,
   },
+  receivingAddress: {
+    type: Object,
+    default: {}
+  },
+  address: {
+    type: Array,
+    default: []
+  },
+  birthday: {
+    type: String,
+    default: ''
+  },
+  occupation: {
+    type: String,
+    default: ''
+  },
+  introduction: {
+    type: String,
+    default: ''
+  }
 });
 
 module.exports = {
