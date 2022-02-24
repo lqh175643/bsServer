@@ -239,8 +239,17 @@ function modifyUserInfoStrNum(uid, target) {
   });
 }
 function deleteUserInfo(uid, target, jid) {
+  const goal = {}
+  if(Array.isArray(jid)){
+    jid.forEach(val=>{
+      goal[`${target}.${val}`] = ''
+    })
+  }else{
+    goal[`${target}.${jid}`] = ''
+  }
+  console.log(goal)
   return new Promise((resolve, reject) => {
-    UserInformation.updateOne({ id: uid }, { $unset: { [`${target}.${jid}`]: '' } }, (err, data) => {
+    UserInformation.updateOne({ id: uid }, { $unset: goal }, (err, data) => {
       if (err) {
         reject(new errMes("删除购物车失败", err));
       }
@@ -268,7 +277,6 @@ function modifyUserInfoArr(uid, target, item) {
   });
 }
 function deleteUserInfoArr(uid, target, val) {
-  console.log(uid, target, val)
   return new Promise((resolve, reject) => {
     UserInformation.updateOne({ id: uid }, { $pull: { [target]: val } }, (err, data) => {
       if (err) {

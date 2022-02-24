@@ -34,30 +34,37 @@ const userInformationSchema = new Schema({
     type: Number,
     unique: true,
   },
+  //用户名
   username: {
     type: String,
     unique: true,
   },
+  //用户创建时间
   createAt: {
     type: Date,
     default: Date.now(),
   },
+  //手机号
   phone: {
     type: String,
     unique: true,
   },
+  //购物车
   shopBus: {
     type: Object,
     default: {}
   },
+  //足迹
   footprint: {
     type: Array,
     default: [],
   },
+  //收藏
   collect: {
     type: Array,
     default: [],
   },
+
   vip: {
     type: Object,
     default: {
@@ -65,10 +72,12 @@ const userInformationSchema = new Schema({
       expirationTime: 0,
     },
   },
+  //性别
   sex: {
     type: Number,
     default: -1, //0为女，1为男，-1未选择
   },
+  //优惠券
   consumerCoupon: {
     type: Array,
     default: [{
@@ -81,30 +90,37 @@ const userInformationSchema = new Schema({
       limit: ['所有商品']
     }],
   },
+  //购买历史
   shopHistory: {
-    type: Object,
-    default: {},
+    type: Array,
+    default: [],
   },
+  //校园豆
   campusBean: {
     type: Number,
     default: 0,
   },
+  //收货地址
   receivingAddress: {
-    type: Object,
-    default: {}
+    type: Array,
+    default: []
   },
+  //用户自我介绍的地址，非收货地址
   address: {
     type: Array,
     default: []
   },
+  //生日
   birthday: {
     type: String,
     default: ''
   },
+  //用户工作
   occupation: {
     type: String,
     default: ''
   },
+  //用户自我介绍
   introduction: {
     type: String,
     default: ''

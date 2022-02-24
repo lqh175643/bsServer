@@ -14,6 +14,8 @@ const {
   modifyUserInfoStrNum
 } = require("../utils/mongodb.js");
 
+const { generateId } = require("../utils/util")
+
 var router = express.Router();
 
 /* GET home page. */
@@ -196,4 +198,34 @@ router.post('/userInfo/receivingaddress', function (req, res, next) {
     console.log(err)
   })
 })
+
+router.post('/order/generate', function (req, res, next) {
+  const body = req.body
+  const uid = req.uid
+  body.did = 'd' + generateId()
+  modifyUserInfoArr(uid, 'shopHistory', body)
+    .then((data) => {
+      return Promise.resolve(data)
+    }).then(() => {
+      const jids = body.goods.map(val => val.jid)
+      return deleteUserInfo(uid, 'shopBus', jids)
+    }).then((data) => {
+      res.send(data)
+    }).catch((err) => {
+      res.send(err)
+    })
+})
+
+router.delete('/order/delete', function (req, res, next) {
+  const body = req.body
+  const uid = req.uid
+  const val = body.val
+  const target = body.target
+  deleteUserInfoArr(uid, target, val).then((data) => {
+    res.send(data)
+  }, err => {
+    console.log(err)
+  })
+})
+
 module.exports = router;
