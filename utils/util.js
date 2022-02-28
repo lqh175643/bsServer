@@ -51,6 +51,23 @@ function str_parse(data,def=""){
   return result
 }
 
+function db_json(uid,keys,values){
+  const limit = {}
+  const goal = {}
+  const keysLen = keys.length
+  const valuesLen = values.length
+  limit.id = uid
+  for(const i=0;i<keysLen-1;i++){
+    limit[`${keys[i]}.${keys[i+1]}`] = values[i]
+  }
+  for(const j=0;j<valuesLen-1;j++){
+    goal[`${goal[j]}.${keys[j+1]}`] = values[i]
+  }
+  keys.forEach((val,index)=>{
+    
+  })
+}
+
 class errMes{
   constructor(mes,err){
     this.mes = mes || ''

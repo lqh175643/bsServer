@@ -9,9 +9,13 @@ const {
   modifyUserInfo,
   getManyData,
   deleteUserInfo,
-  modifyUserInfoArr,
+  UserInfoArrPush,
   deleteUserInfoArr,
-  modifyUserInfoStrNum
+  modifyUserInfoStrNum,
+  UserInfoArrModify,
+  modifyGoods,
+  deleteUserInfoArrObj,
+  UserInfoArrTwoModify
 } = require("../utils/mongodb.js");
 
 const { generateId } = require("../utils/util")
@@ -109,11 +113,9 @@ router.get("/userInfo", function (req, res, next) {
 });
 router.post("/detail/operation", function (req, res, next) {
   const uid = req.uid;
-  const query = req.query;
-  const target = query.target;
-  const jid = query.jid;
-  const count = query.goodCount;
-  modifyUserInfo(uid, target, jid, count).then(
+  const body = req.body;
+  const { target, category, count, jid } = body
+  UserInfoArrPush(uid, target, { jid, count, category }).then(
     (data) => {
       res.send(data);
     },
@@ -124,7 +126,7 @@ router.post("/detail/operation", function (req, res, next) {
 });
 router.get("/userInfo/shopBus", function (req, res, next) {
   const query = req.query;
-  const ids = str_parse(query.ids);
+  const ids = query.ids;
   getManyData("category", "allCategory", ids).then(
     (data) => {
       res.send(data);
@@ -139,7 +141,7 @@ router.post("/userInfo/collection", function (req, res, next) {
   const jid = body.jid
   const target = body.target
   const uid = req.uid
-  modifyUserInfoArr(uid, target, jid).then((data) => {
+  UserInfoArrPush(uid, target, jid).then((data) => {
     res.send(data)
   }, err => {
     console.log(err)
@@ -150,7 +152,7 @@ router.post("/userInfo/footprint", function (req, res, next) {
   const jid = body.jid
   const target = body.target
   const uid = req.uid
-  modifyUserInfoArr(uid, target, jid).then((data) => {
+  UserInfoArrPush(uid, target, jid).then((data) => {
     res.send(data)
   }, err => {
     console.log(err)
@@ -179,6 +181,17 @@ router.delete('/userInfo/deleteArr', function (req, res, next) {
   })
 })
 
+router.delete('/userInfo/deleteArrObj', function (req, res, next) {
+  const body = req.body;
+  const {val,target,Ptarget} = body
+  const uid = req.uid
+  deleteUserInfoArrObj(uid,Ptarget, target, val).then((data) => {
+    res.send(data)
+  }, err => {
+    console.log(err)
+  })
+})
+
 router.post('/userInfo/userinfo', function (req, res, next) {
   const body = req.body
   const uid = req.uid
@@ -192,7 +205,7 @@ router.post('/userInfo/userinfo', function (req, res, next) {
 router.post('/userInfo/receivingaddress', function (req, res, next) {
   const body = req.body
   const uid = req.uid
-  modifyUserInfoArr(uid, 'receivingAddress', body).then((data) => {
+  UserInfoArrPush(uid, 'receivingAddress', body).then((data) => {
     res.send(data)
   }, err => {
     console.log(err)
@@ -203,12 +216,12 @@ router.post('/order/generate', function (req, res, next) {
   const body = req.body
   const uid = req.uid
   body.did = 'd' + generateId()
-  modifyUserInfoArr(uid, 'shopHistory', body)
+  UserInfoArrPush(uid, 'shopHistory', body)
     .then((data) => {
       return Promise.resolve(data)
     }).then(() => {
       const jids = body.goods.map(val => val.jid)
-      return deleteUserInfo(uid, 'shopBus', jids)
+      return deleteUserInfoArrObj(uid, 'shopBus','jid',jids)
     }).then((data) => {
       res.send(data)
     }).catch((err) => {
@@ -224,6 +237,35 @@ router.delete('/order/delete', function (req, res, next) {
   deleteUserInfoArr(uid, target, val).then((data) => {
     res.send(data)
   }, err => {
+    console.log(err)
+  })
+})
+
+router.post('/order/receive', function (req, res, next) {
+  const body = req.body
+  const did = body.did
+  const uid = req.uid
+  UserInfoArrModify(uid, 'shopHistory', did, 'isReceive').then((data) => {
+    res.send(data)
+  }, err => {
+    console.log(err)
+  })
+})
+
+router.post('/order/commit', function (req, res, next) {
+  const uid = req.uid
+  const body = req.body
+  const jid = body.jid
+  const colName = body.colName + 'Details'
+  const comment = body.comment
+  const score = body.score
+  const did = body.did
+  
+  modifyGoods('category', colName, uid, jid, 'comment', comment, score).then((data) => {
+    return UserInfoArrTwoModify(uid, 'shopHistory','goods', did, jid)
+  }).then((data)=>{
+    res.send(data)
+  }).catch((err)=>{
     console.log(err)
   })
 })

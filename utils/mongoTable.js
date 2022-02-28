@@ -92,8 +92,8 @@ const userInformationSchema = new Schema({
   },
   //购买历史
   shopHistory: {
-    type: Array,
-    default: [],
+    type: [Object],
+    default: []
   },
   //校园豆
   campusBean: {

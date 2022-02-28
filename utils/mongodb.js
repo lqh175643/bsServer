@@ -82,21 +82,44 @@ async function getColData(dbName, colName, page, limit, searchLimit) {
       let reg = new RegExp(searchLimit);
       let temp = db.collection(colName).find({ detail: reg });
       let totalCount;
-      temp.count().then((res) => (totalCount = res));
       temp
-        .skip((page - 1) * limit)
-        .limit(limit)
-        .toArray((err, data) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve({
-              totalCount,
-              data,
+        .count()
+        .then((res) => {
+          totalCount = res
+          return temp
+        })
+        .then(res => {
+          res.skip((page - 1) * limit)
+            .limit(limit)
+            .toArray((err, data) => {
+              if (err) {
+                reject(err);
+              } else {
+                resolve({
+                  totalCount,
+                  data,
+                });
+              }
             });
-          }
-          // client.close();
         });
+    });
+  });
+}
+
+async function modifyGoods(dbName, colName, uid, jid, target, val, score) {
+  return new Promise((resolve, reject) => {
+    client.connect((err) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      let db = client.db(dbName);
+      db.collection(colName)
+        .updateOne({ id: jid }, { $push: { [target]: { uid, val, children: [], time: Date.now(), zanCount: 0, score } } })
+        .then((res) => {
+          resolve(res);
+        });
+      // client.close();
     });
   });
 }
@@ -240,11 +263,11 @@ function modifyUserInfoStrNum(uid, target) {
 }
 function deleteUserInfo(uid, target, jid) {
   const goal = {}
-  if(Array.isArray(jid)){
-    jid.forEach(val=>{
+  if (Array.isArray(jid)) {
+    jid.forEach(val => {
       goal[`${target}.${val}`] = ''
     })
-  }else{
+  } else {
     goal[`${target}.${jid}`] = ''
   }
   console.log(goal)
@@ -261,8 +284,8 @@ function deleteUserInfo(uid, target, jid) {
     });
   });
 }
-
-function modifyUserInfoArr(uid, target, item) {
+//添加数组
+function UserInfoArrPush(uid, target, item) {
   return new Promise((resolve, reject) => {
     UserInformation.updateOne({ id: uid }, { $push: { [target]: item } }, (err, data) => {
       if (err) {
@@ -274,6 +297,97 @@ function modifyUserInfoArr(uid, target, item) {
         reject(new errMes("操作失败"));
       }
     });
+  });
+}
+
+function UserInfoArrModify(uid, Ptarget, did, target) {
+  return new Promise((resolve, reject) => {
+    UserInformation.updateOne(
+      { id: uid, [`${Ptarget}.did`]: did },
+      { $set: { [`${Ptarget}.$.${target}`]: true } }
+      , (err, data) => {
+        if (err) {
+          reject(new errMes("操作失败", err));
+        }
+        if (data) {
+          resolve(new sucMes(200, data));
+        } else {
+          reject(new errMes("操作失败"));
+        }
+      });
+  });
+}
+
+function UserInfoArrTwoModify(uid, Ptarget, target, did, jid) {
+  return new Promise((resolve, reject) => {
+    client.connect((err) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      let db = client.db('userInfo');
+      db.collection('userinformations')
+        .updateOne(
+          { id: uid },
+          { $set: { [`${Ptarget}.$[idx1].${target}.$[idx2].isComment`]: true } },
+          {
+            arrayFilters: [
+              {
+                "idx1.did": did,
+              },
+              {
+                "idx2.jid": jid
+              }
+            ]
+          })
+        .then((res) => {
+          resolve(res);
+        })
+        .catch(err => {
+          console.log(err)
+        });
+    });
+  });
+  return new Promise((resolve, reject) => {
+    UserInformation.updateMany(
+      { id: uid },
+      { $set: { "shopHistory.$[0].goods.$[0].isComment": 10 } },
+      {
+        arrayFilters: [
+          {
+            "i2.jid": jid
+          }
+        ],
+        new: true
+      }
+      , (err, data) => {
+        if (err) {
+          reject(new errMes("操作失败", err));
+        }
+        if (data) {
+          resolve(new sucMes(200, data));
+        } else {
+          reject(new errMes("操作失败"));
+        }
+      });
+  });
+}
+function deleteUserInfoArrObj(uid, Ptarget, target, val) {
+  console.log(uid, Ptarget, target, val)
+  return new Promise((resolve, reject) => {
+    UserInformation.updateMany(
+      { id: uid },
+      { $pull: { [Ptarget]: { [target]: { $in: val } } } }
+      , (err, data) => {
+        if (err) {
+          reject(new errMes("操作失败", err));
+        }
+        if (data) {
+          resolve(new sucMes(200, data));
+        } else {
+          reject(new errMes("操作失败"));
+        }
+      });
   });
 }
 function deleteUserInfoArr(uid, target, val) {
@@ -294,13 +408,17 @@ module.exports = {
   addData,
   getColData,
   getOneData,
+  modifyGoods,
   login,
   register,
   getUserInfo,
   modifyUserInfo,
   getManyData,
   deleteUserInfo,
-  modifyUserInfoArr,
+  UserInfoArrPush,
+  UserInfoArrModify,
+  UserInfoArrTwoModify,
   modifyUserInfoStrNum,
-  deleteUserInfoArr
+  deleteUserInfoArr,
+  deleteUserInfoArrObj
 };
