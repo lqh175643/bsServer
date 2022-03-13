@@ -67,7 +67,6 @@ function db_json(uid,keys,values){
     
   })
 }
-
 class errMes{
   constructor(mes,err){
     this.mes = mes || ''
@@ -83,11 +82,14 @@ class sucMes{
   }
 }
 
+const category = ['snacks','clothes','allCategory']
+
 module.exports = {
   generateId,
   generateToken,
   verifyToken,
   str_parse,
   errMes,
-  sucMes
+  sucMes,
+  category
 };

@@ -23,6 +23,10 @@ const userSchema = new Schema({
   salt: {
     type: String,
   },
+  isAdministrator: {
+    type: Boolean,
+    default:false
+  },
   phone: {
     type: String,
     unique: true,
@@ -38,6 +42,10 @@ const userInformationSchema = new Schema({
   username: {
     type: String,
     unique: true,
+  },
+  isAdministrator: {
+    type: Boolean,
+    default:false
   },
   //用户创建时间
   createAt: {
@@ -66,11 +74,8 @@ const userInformationSchema = new Schema({
   },
 
   vip: {
-    type: Object,
-    default: {
-      isVip: false,
-      expirationTime: 0,
-    },
+    type: Number,
+    default:''
   },
   //性别
   sex: {
